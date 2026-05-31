@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch Stories — Reels de fútbol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e0d;
+    --panel:#111816;
+    --panel-2:#0d1311;
+    --line:#1f2c28;
+    --pitch:#0c5c3a;
+    --pitch-dk:#0a4e32;
+    --neon:#c6ff3a;
+    --neon-dk:#9fd414;
+    --gol:#ff3b3b;
+    --ink:#eafff0;
+    --muted:#7e958c;
+    --gold:#ffd24a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #15241d 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #102019 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Archivo',sans-serif;
+    min-height:100%;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 22px 80px}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:14px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{
+    width:48px;height:48px;border-radius:13px;
+    background:linear-gradient(135deg,var(--neon),var(--neon-dk));
+    display:grid;place-items:center;color:#0a0e0d;font-family:'Anton';font-size:26px;
+    box-shadow:0 0 30px rgba(198,255,58,.35);transform:rotate(-4deg)
+  }
+  .brand h1{font-family:'Anton';font-size:30px;letter-spacing:.5px;line-height:.9}
+  .brand h1 span{color:var(--neon)}
+  .brand p{color:var(--muted);font-size:12.5px;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
+  .src-tag{font-family:'Barlow Condensed';font-size:13px;color:var(--muted);border:1px solid var(--line);padding:7px 13px;border-radius:99px;letter-spacing:1.5px;text-transform:uppercase}
+  .src-tag b{color:var(--neon)}
+
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:18px;padding:20px}
+  .panel h2{font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;letter-spacing:2.5px;font-size:14px;color:var(--neon);margin-bottom:4px}
+  .panel .sub{color:var(--muted);font-size:12px;margin-bottom:16px}
+  .step{display:flex;align-items:center;gap:9px;margin:18px 0 10px}
+  .step .num{width:23px;height:23px;border-radius:7px;background:#0a0e0d;border:1px solid var(--line);display:grid;place-items:center;font-family:'Anton';font-size:12px;color:var(--neon)}
+  .step .lbl{font-family:'Barlow Condensed';font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-size:13px}
+
+  input[type=text],select{
+    width:100%;background:#0a0e0d;border:1px solid var(--line);color:var(--ink);
+    padding:12px 13px;border-radius:11px;font-family:'Archivo';font-size:13.5px;outline:none;transition:.2s
+  }
+  input[type=text]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 0 3px rgba(198,255,58,.12)}
+  select:disabled{opacity:.4}
+  label.mini{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+
+  .teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .teamcard{
+    cursor:pointer;border:1px solid var(--line);border-radius:13px;padding:13px 11px;text-align:center;
+    background:#0a0e0d;transition:.18s;position:relative;overflow:hidden
+  }
+  .teamcard:hover{border-color:var(--neon-dk);transform:translateY(-2px)}
+  .teamcard.sel{border-color:var(--neon);background:linear-gradient(180deg,rgba(198,255,58,.12),transparent)}
+  .teamcard .role{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .teamcard .nm{font-family:'Barlow Condensed';font-weight:700;font-size:16px;margin-top:3px;line-height:1.05}
+  .teamcard .sc{font-family:'Anton';font-size:22px;color:var(--neon);margin-top:4px}
+
+  .btn{
+    width:100%;border:none;cursor:pointer;font-family:'Barlow Condensed';font-weight:700;
+    letter-spacing:2px;text-transform:uppercase;font-size:15px;padding:15px;border-radius:13px;transition:.18s;margin-top:8px
+  }
+  .btn.primary{background:linear-gradient(135deg,var(--neon),var(--neon-dk));color:#08110a;box-shadow:0 8px 24px rgba(198,255,58,.25)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(198,255,58,.38)}
+  .btn.primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--neon)}
+  .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+
+  .stage-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{
+    position:relative;width:min(100%,405px);aspect-ratio:9/16;border-radius:26px;overflow:hidden;
+    border:1px solid var(--line);background:#000;box-shadow:0 30px 80px rgba(0,0,0,.6), inset 0 0 0 6px #060807
+  }
+  canvas#stage{width:100%;height:100%;display:block}
+  .ctrls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:min(100%,405px)}
+  .ctrls .btn{margin-top:0;flex:1;min-width:120px;padding:13px}
+
+  .toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:flex;align-items:center;gap:7px;background:#0a0e0d;border:1px solid var(--line);padding:8px 11px;border-radius:99px;cursor:pointer;font-size:12px;font-family:'Barlow Condensed';font-weight:600;letter-spacing:1px;text-transform:uppercase;user-select:none;transition:.15s}
+  .chip.on{border-color:var(--neon);color:var(--neon)}
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+  .chip.on .dot{background:var(--neon);box-shadow:0 0 8px var(--neon)}
+
+  .rng{display:flex;align-items:center;gap:10px;margin-top:14px;color:var(--muted);font-size:12px}
+  input[type=range]{flex:1;accent-color:var(--neon)}
+
+  .note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+  .note b{color:var(--ink)}
+  .rec-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gol);margin-right:6px;animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .hidden{display:none!important}
+  a{color:var(--neon)}
+  code{background:#0a0e0d;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:12px;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">⚽</div>
+      <div>
+        <h1>PITCH<span>STORIES</span></h1>
+        <p>Reels de fútbol · storytelling</p>
+      </div>
+    </div>
+    <div class="src-tag">Datos · <b>SofaScore</b></div>
+  </header>
+
+  <div class="grid">
+    <!-- ============ CONTROL PANEL ============ -->
+    <div class="panel">
+      <h2>Generador</h2>
+      <div class="sub">Pegá el link, elegí equipo y jugador.</div>
+
+      <div class="step"><div class="num">1</div><div class="lbl">Link del partido</div></div>
+      <input type="text" id="matchUrl" placeholder="https://www.sofascore.com/.../#id:XXXXXXX">
+      <button class="btn ghost" id="loadBtn" style="margin-top:10px">Cargar partido</button>
+      <input type="file" id="fileInput" accept=".json" class="hidden">
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--muted)">o <a href="#" id="uploadLink">subir JSON del notebook</a> · <a href="#" id="demoLink">cargar demo</a></div>
+
+      <div class="step"><div class="num">2</div><div class="lbl">Equipo</div></div>
+      <div class="teams" id="teams">
+        <div class="teamcard" data-side="home"><div class="role">Local</div><div class="nm" id="homeNm">—</div><div class="sc" id="homeSc">·</div></div>
+        <div class="teamcard" data-side="away"><div class="role">Visita</div><div class="nm" id="awayNm">—</div><div class="sc" id="awaySc">·</div></div>
+      </div>
+
+      <div class="step"><div class="num">3</div><div class="lbl">Jugador</div></div>
+      <label class="mini">Seleccioná un futbolista</label>
+      <select id="playerSel" disabled><option>— elegí equipo primero —</option></select>
+
+      <div class="toggles" id="toggles">
+        <div class="chip on" data-fx="shots"><div class="dot"></div>Shotmap</div>
+        <div class="chip on" data-fx="pass"><div class="dot"></div>Pases</div>
+        <div class="chip on" data-fx="duel"><div class="dot"></div>Duelos</div>
+        <div class="chip on" data-fx="voice"><div class="dot"></div>Voz IA</div>
+        <div class="chip on" data-fx="gol"><div class="dot"></div>Sonido gol</div>
+      </div>
+
+      <div class="rng"><span>Ritmo</span><input type="range" id="speed" min="0.5" max="2" step="0.25" value="1"><span id="speedV">1×</span></div>
+
+      <button class="btn primary" id="playBtn" disabled style="margin-top:18px">▶ Generar reel</button>
+      <div class="btnrow">
+        <button class="btn ghost" id="recBtn" disabled>● Grabar .mp4</button>
+        <button class="btn ghost" id="dlBtn" disabled>↓ Descargar</button>
+      </div>
+
+      <div class="note">
+        <b>Cómo se conecta:</b> tu notebook de SofaScore exporta un <code>.json</code> y esta web lo anima. La narración usa la voz del navegador (español) y la grabación usa <code>MediaRecorder</code> en HD vertical 9:16.
+      </div>
+    </div>
+
+    <!-- ============ STAGE ============ -->
+    <div class="stage-wrap">
+      <div class="phone">
+        <canvas id="stage" width="1080" height="1920"></canvas>
+      </div>
+      <div class="ctrls">
+        <button class="btn ghost" id="replayBtn">↺ Repetir</button>
+        <button class="btn ghost" id="muteBtn">🔊 Voz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   PITCH STORIES — animador de reels de fútbol (SofaScore)
+   ============================================================ */
+
+// ---------- DEMO DATA (estructura idéntica al notebook SofaScore) ----------
+const DEMO = {
+  match:{
+    home:"Independiente del Valle", away:"LDU Quito",
+    homeScore:3, awayScore:1,
+    tournament:"LigaPro Serie A", round:"Fecha 12", date:"2025-08-17"
+  },
+  players:{
+    home:[
+      {id:1,name:"Junior Sornoza",number:10,position:"AMF",
+        shots:[
+          {x:84,y:42,endX:100,endY:48,xg:0.12,minute:23,type:"goal",bodyPart:"left"},
+          {x:78,y:55,endX:96,endY:40,xg:0.07,minute:41,type:"saved",bodyPart:"right"},
+          {x:88,y:50,endX:100,endY:52,xg:0.34,minute:67,type:"goal",bodyPart:"left"},
+          {x:74,y:36,endX:90,endY:30,xg:0.05,minute:79,type:"miss",bodyPart:"left"}
+        ],
+        passes:[
+          {x:50,y:40,endX:78,endY:52,outcome:"key"},
+          {x:62,y:60,endX:84,endY:44,outcome:"assist"},
+          {x:45,y:30,endX:70,endY:38,outcome:"ok"},
+          {x:55,y:50,endX:88,endY:55,outcome:"key"}
+        ],
+        duels:[{x:70,y:45,won:true},{x:60,y:55,won:true},{x:80,y:40,won:false},{x:65,y:35,won:true}],
+        stats:{rating:8.4,goals:2,assists:1,passAcc:89}
+      },
+      {id:2,name:"Lautaro Díaz",number:9,position:"CF",
+        shots:[
+          {x:90,y:48,endX:100,endY:50,xg:0.55,minute:55,type:"goal",bodyPart:"head"},
+          {x:86,y:44,endX:99,endY:42,xg:0.21,minute:62,type:"saved",bodyPart:"right"}
+        ],
+        passes:[{x:80,y:50,endX:88,endY:48,outcome:"ok"},{x:75,y:55,endX:85,endY:52,outcome:"key"}],
+        duels:[{x:88,y:48,won:true},{x:82,y:52,won:false},{x:90,y:45,won:true}],
+        stats:{rating:7.6,goals:1,assists:0,passAcc:78}
+      }
+    ],
+    away:[
+      {id:3,name:"Álex Arce",number:11,position:"CF",
+        shots:[
+          {x:85,y:46,endX:100,endY:49,xg:0.28,minute:71,type:"goal",bodyPart:"right"},
+          {x:79,y:52,endX:94,endY:60,xg:0.09,minute:33,type:"miss",bodyPart:"left"}
+        ],
+        passes:[{x:60,y:45,endX:82,endY:50,outcome:"key"}],
+        duels:[{x:78,y:48,won:false},{x:70,y:55,won:true}],
+        stats:{rating:7.1,goals:1,assists:0,passAcc:81}
+      }
+    ]
+  }
+};
+
+// ---------- STATE ----------
+let DATA=null, side=null, player=null, muted=false, recording=false, recordedURL=null;
+let fx={shots:true,pass:true,duel:true,voice:true,gol:true};
+let speed=1;
+
+const $=id=>document.getElementById(id);
+const cv=$('stage'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+
+// ---------- AUDIO: goal sound (WebAudio, no file needed) ----------
+let actx=null;
+function audio(){actx=actx||new (window.AudioContext||window.webkitAudioContext)();return actx}
+function golSound(){
+  if(!fx.gol)return;
+  const a=audio();const t=a.currentTime;
+  // rising horn-ish blast + crowd-ish noise
+  [220,330,440].forEach((f,i)=>{
+    const o=a.createOscillator(),g=a.createGain();
+    o.type='sawtooth';o.frequency.setValueAtTime(f,t);
+    o.frequency.exponentialRampToValueAtTime(f*1.5,t+.5);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.05+i*.05);
+    g.gain.exponentialRampToValueAtTime(.001,t+1.1);
+    o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1.2);
+  });
+  // crowd noise
+  const buf=a.createBuffer(1,a.sampleRate*1.2,a.sampleRate);const d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);
+  const n=a.createBufferSource();n.buffer=buf;const ng=a.createGain();
+  ng.gain.setValueAtTime(.0,t);ng.gain.linearRampToValueAtTime(.12,t+.1);ng.gain.exponentialRampToValueAtTime(.001,t+1.2);
+  n.connect(ng);ng.connect(a.destination);n.start(t);
+}
+function tick(){ if(!actx)return; const a=actx,t=a.currentTime;
+  const o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=880;
+  g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.13);
+}
+
+// ---------- VOICE (Web Speech API, Spanish) ----------
+let voices=[];
+function loadVoices(){voices=speechSynthesis.getVoices()}
+if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+function say(text){
+  return new Promise(res=>{
+    if(!fx.voice||muted||!('speechSynthesis'in window)){setTimeout(res,500);return}
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES';u.rate=1.02*speed;u.pitch=1.02;
+    const es=voices.find(v=>/es(-|_)/i.test(v.lang));if(es)u.voice=es;
+    u.onend=res;u.onerror=res;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+    setTimeout(res,7000); // safety
+  });
+}
+
+// ---------- PITCH DRAWING (vertical, attacking up) ----------
+// field logical coords: x 0..100 (own goal->opp goal mapped to canvas vertical), y 0..100 (width)
+const PITCH={top:430,bottom:H-120,left:90,right:W-90};
+function px(y){return PITCH.left+(y/100)*(PITCH.right-PITCH.left)} // y(0..100)->canvas X
+function py(x){return PITCH.bottom-(x/100)*(PITCH.bottom-PITCH.top)} // x(0..100)->canvas Y (up=attack)
+
+function drawPitch(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0a1f15');bg.addColorStop(1,'#06120c');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  // header band
+  if(DATA){drawHeader()}
+
+  // grass stripes
+  const fw=PITCH.right-PITCH.left, fh=PITCH.bottom-PITCH.top;
+  for(let i=0;i<10;i++){
+    ctx.fillStyle=i%2?'#0c5c3a':'#0a5234';
+    ctx.fillRect(PITCH.left,PITCH.top+(fh/10)*i,fw,fh/10);
+  }
+  // lines
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=4;
+  ctx.strokeRect(PITCH.left,PITCH.top,fw,fh);
+  // halfway-ish (we show attacking half mostly) center circle near bottom
+  ctx.beginPath();ctx.moveTo(PITCH.left,PITCH.bottom-fh*0.0);ctx.stroke();
+  // penalty box (top = attacking goal)
+  const boxW=fw*0.6, boxX=PITCH.left+(fw-boxW)/2, boxH=fh*0.18;
+  ctx.strokeRect(boxX,PITCH.top,boxW,boxH);
+  const sixW=fw*0.3, sixX=PITCH.left+(fw-sixW)/2, sixH=fh*0.07;
+  ctx.strokeRect(sixX,PITCH.top,sixW,sixH);
+  // goal
+  ctx.lineWidth=7;ctx.strokeStyle='rgba(255,255,255,.9)';
+  ctx.beginPath();ctx.moveTo(PITCH.left+fw*0.4,PITCH.top);ctx.lineTo(PITCH.left+fw*0.6,PITCH.top);ctx.stroke();
+  // pen spot + arc
+  ctx.fillStyle='rgba(255,255,255,.6)';
+  ctx.beginPath();ctx.arc(PITCH.left+fw/2,PITCH.top+boxH*0.72,4,0,7);ctx.fill();
+  ctx.lineWidth=4;ctx.strokeStyle='rgba(255,255,255,.5)';
+  ctx.beginPath();ctx.arc(PITCH.left+fw/2,PITCH.top+boxH,fw*0.13,Math.PI*0.18,Math.PI*0.82);ctx.stroke();
+}
+
+function drawHeader(){
+  const m=DATA.match;
+  ctx.textAlign='center';
+  // tournament
+  ctx.fillStyle='#7e958c';ctx.font='600 30px "Barlow Condensed"';
+  ctx.fillText((m.tournament+' · '+(m.round||'')).toUpperCase(),W/2,70);
+  // scoreboard
+  ctx.fillStyle='#eafff0';ctx.font='800 38px Archivo';
+  ctx.textAlign='right';ctx.fillText(m.home,W/2-120,150);
+  ctx.textAlign='left';ctx.fillText(m.away,W/2+120,150);
+  ctx.textAlign='center';
+  ctx.fillStyle='#c6ff3a';ctx.font='Anton';ctx.font='72px Anton';
+  ctx.fillText(m.homeScore+' - '+m.awayScore,W/2,165);
+  // player chip
+  if(player){
+    ctx.fillStyle='#11181699';roundRect(W/2-330,210,660,150,20);ctx.fill();
+    ctx.fillStyle='#c6ff3a';ctx.font='120px Anton';ctx.textAlign='left';
+    ctx.fillText('#'+player.number,W/2-300,330);
+    ctx.fillStyle='#eafff0';ctx.font='800 52px Archivo';
+    ctx.fillText(player.name,W/2-120,290);
+    ctx.fillStyle='#7e958c';ctx.font='600 34px "Barlow Condensed"';
+    ctx.fillText(player.position+' · '+(side==='home'?DATA.match.home:DATA.match.away),W/2-120,335);
+  }
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+
+function xgColor(xg){
+  // low=blue, mid=yellow, high=red
+  if(xg<0.1)return'#4aa3ff';
+  if(xg<0.25)return'#ffd24a';
+  return'#ff6a3a';
+}
+
+// ---------- ANIMATION HELPERS ----------
+const sleep=ms=>new Promise(r=>setTimeout(r,ms/speed));
+function lerp(a,b,t){return a+(b-a)*t}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+
+let animToken=0;
+async function animateFrame(drawFn,dur){
+  const start=performance.now();const tok=animToken;
+  return new Promise(res=>{
+    function loop(now){
+      if(tok!==animToken)return res();
+      const t=Math.min(1,(now-start)/(dur/speed));
+      drawPitch();drawFn(ease(t));
+      if(t<1)requestAnimationFrame(loop);else res();
+    }
+    requestAnimationFrame(loop);
+  });
+}
+
+// draw a shot with traveling ball + trail
+async function playShot(s,idx,total){
+  const sx=px(s.y),sy=py(s.x),ex=px(s.endY),ey=py(s.endX);
+  const col=xgColor(s.xg),isGoal=s.type==='goal';
+  tick();
+  await animateFrame(t=>{
+    // existing shots stay (redrawn by caller via persistent layer—simplified: redraw all up to idx)
+    drawPersistShots(idx);
+    // trail
+    ctx.strokeStyle=col;ctx.lineWidth=6;ctx.globalAlpha=.5;
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lerp(sx,ex,t),lerp(sy,ey,t));ctx.stroke();
+    ctx.globalAlpha=1;
+    // origin
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(sx,sy,12,0,7);ctx.fill();
+    // ball
+    const bx=lerp(sx,ex,t),by=lerp(sy,ey,t);
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bx,by,15,0,7);ctx.fill();
+    ctx.strokeStyle=col;ctx.lineWidth=3;ctx.stroke();
+    // label
+    ctx.fillStyle='#eafff0';ctx.font='700 30px "Barlow Condensed"';ctx.textAlign='center';
+    ctx.fillText("min "+s.minute+"  ·  xG "+s.xg.toFixed(2),W/2,PITCH.bottom+55);
+  },650);
+  persistShots.push(s);
+  if(isGoal){golSound();await goalBurst(ex,ey)}
+}
+let persistShots=[];
+function drawPersistShots(upTo){
+  persistShots.forEach(s=>{
+    const ex=px(s.endY),ey=py(s.endX),col=xgColor(s.xg);
+    ctx.globalAlpha=s.type==='goal'?1:.55;
+    ctx.fillStyle=s.type==='goal'?col:'transparent';
+    ctx.strokeStyle=col;ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(ex,ey,12,0,7);ctx.fill();ctx.stroke();
+    ctx.globalAlpha=1;
+  });
+}
+async function goalBurst(x,y){
+  for(let i=0;i<24;i++){
+    await animateFrame(t=>{
+      drawPersistShots();
+      ctx.fillStyle='#ff3b3b';ctx.font='130px Anton';ctx.textAlign='center';
+      ctx.globalAlpha=1-Math.abs(t-.5)*1.2;
+      ctx.fillText('¡GOOOL!',W/2,py(50));
+      ctx.globalAlpha=1;
+      // ring
+      ctx.strokeStyle='#ff3b3b';ctx.lineWidth=6;ctx.globalAlpha=1-t;
+      ctx.beginPath();ctx.arc(x,y,20+t*120,0,7);ctx.stroke();ctx.globalAlpha=1;
+    },40);
+    break; // single burst frame loop replaced below
+  }
+  await animateFrame(t=>{
+    drawPersistShots();
+    ctx.strokeStyle='#ff3b3b';ctx.lineWidth=8;ctx.globalAlpha=1-t;
+    ctx.beginPath();ctx.arc(x,y,20+t*160,0,7);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillStyle='#ff3b3b';ctx.font='140px Anton';ctx.textAlign='center';
+    ctx.globalAlpha=t<.8?1:(1-t)*5;
+    ctx.fillText('¡GOOOL!',W/2,py(55));ctx.globalAlpha=1;
+  },1100);
+}
+
+async function playPass(p){
+  const sx=px(p.y),sy=py(p.x),ex=px(p.endY),ey=py(p.endX);
+  const col=p.outcome==='assist'?'#ffd24a':p.outcome==='key'?'#c6ff3a':'#9fd414';
+  tick();
+  await animateFrame(t=>{
+    drawPersistPasses();
+    ctx.setLineDash([14,10]);ctx.strokeStyle=col;ctx.lineWidth=5;ctx.globalAlpha=.9;
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lerp(sx,ex,t),lerp(sy,ey,t));ctx.stroke();
+    ctx.setLineDash([]);ctx.globalAlpha=1;
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(lerp(sx,ex,t),lerp(sy,ey,t),11,0,7);ctx.fill();
+  },420);
+  persistPasses.push(p);
+}
+let persistPasses=[];
+function drawPersistPasses(){
+  persistPasses.forEach(p=>{
+    const sx=px(p.y),sy=py(p.x),ex=px(p.endY),ey=py(p.endX);
+    const col=p.outcome==='assist'?'#ffd24a':p.outcome==='key'?'#c6ff3a':'#5a7a4a';
+    ctx.setLineDash([14,10]);ctx.strokeStyle=col;ctx.globalAlpha=.5;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();
+    ctx.setLineDash([]);ctx.globalAlpha=1;
+  });
+}
+
+async function playDuels(duels){
+  for(const d of duels){
+    const x=px(d.y),y=py(d.x);
+    await animateFrame(t=>{
+      drawPersistDuels();
+      ctx.strokeStyle=d.won?'#c6ff3a':'#ff6a3a';ctx.lineWidth=5;ctx.globalAlpha=1-t;
+      ctx.beginPath();ctx.arc(x,y,8+t*40,0,7);ctx.stroke();ctx.globalAlpha=1;
+      ctx.fillStyle=d.won?'#c6ff3a':'#ff6a3a';ctx.beginPath();ctx.arc(x,y,10,0,7);ctx.fill();
+    },300);
+    persistDuels.push(d);
+  }
+}
+let persistDuels=[];
+function drawPersistDuels(){
+  persistDuels.forEach(d=>{
+    const x=px(d.y),y=py(d.x);
+    ctx.fillStyle=d.won?'#c6ff3a':'#ff6a3a';ctx.globalAlpha=.7;
+    ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.fill();ctx.globalAlpha=1;
+  });
+}
+
+// ---------- MAIN SEQUENCE ----------
+async function runStory(){
+  animToken++;const tok=animToken;
+  persistShots=[];persistPasses=[];persistDuels=[];
+  audio(); // unlock
+  const st=player.stats||{};
+  drawPitch();
+
+  await say(`${player.name}, ${player.position} de ${side==='home'?DATA.match.home:DATA.match.away}. Calificación ${st.rating||'—'}.`);
+  if(tok!==animToken)return;
+
+  // SHOTS
+  if(fx.shots&&player.shots&&player.shots.length){
+    drawPitch();
+    await say(`Mirá su mapa de remates. ${player.shots.length} disparos, ${player.shots.filter(s=>s.type==='goal').length} al fondo de la red.`);
+    for(let i=0;i<player.shots.length;i++){
+      if(tok!==animToken)return;
+      const s=player.shots[i];
+      if(s.type==='goal')await say(`Minuto ${s.minute}. ¡Gol! con un xG de ${s.xg.toFixed(2)}.`);
+      else await say(`Minuto ${s.minute}, ${s.type==='saved'?'atajado':'desviado'}.`);
+      await playShot(s,i,player.shots.length);
+      await sleep(250);
+    }
+    await sleep(500);
+  }
+  // PASSES
+  if(fx.pass&&player.passes&&player.passes.length){
+    if(tok!==animToken)return;
+    drawPitch();drawPersistShots();
+    await say(`En distribución, ${st.passAcc||'—'} por ciento de acierto. Estos son sus pases clave.`);
+    for(const p of player.passes){if(tok!==animToken)return;await playPass(p)}
+    await sleep(500);
+  }
+  // DUELS
+  if(fx.duel&&player.duels&&player.duels.length){
+    if(tok!==animToken)return;
+    drawPitch();
+    const won=player.duels.filter(d=>d.won).length;
+    await say(`Y en el mano a mano: ${won} de ${player.duels.length} duelos ganados.`);
+    await playDuels(player.duels);
+    await sleep(400);
+  }
+  // OUTRO
+  if(tok!==animToken)return;
+  drawPitch();drawPersistShots();drawPersistPasses();drawPersistDuels();
+  ctx.fillStyle='#11181699';roundRect(W/2-340,py(50)-90,680,180,22);ctx.fill();
+  ctx.textAlign='center';ctx.fillStyle='#c6ff3a';ctx.font='150px Anton';
+  ctx.fillText(st.rating||'',W/2,py(50)+10);
+  ctx.fillStyle='#eafff0';ctx.font='600 36px "Barlow Condensed"';
+  ctx.fillText('RATING SOFASCORE',W/2,py(50)+70);
+  await say(`Cierre: ${st.goals||0} goles, ${st.assists||0} asistencias. Un partidazo de ${player.name}.`);
+}
+
+// ---------- RECORDING ----------
+let recorder,chunks=[];
+function startRec(){
+  chunks=[];
+  const stream=cv.captureStream(30);
+  // add audio (gol + voice routed via destination)
+  try{
+    const dest=audio().createMediaStreamDestination();
+    // route a silent node so track exists; live gol sounds also hit destination separately
+    stream.addTrack(dest.stream.getAudioTracks()[0]);
+  }catch(e){}
+  const mime=MediaRecorder.isTypeSupported('video/mp4')?'video/mp4':'video/webm;codecs=vp9';
+  recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8_000_000});
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:recorder.mimeType});
+    recordedURL=URL.createObjectURL(blob);
+    $('dlBtn').disabled=false;$('dlBtn').dataset.ext=recorder.mimeType.includes('mp4')?'mp4':'webm';
+  };
+  recorder.start();
+}
+function stopRec(){if(recorder&&recorder.state!=='inactive')recorder.stop()}
+
+// ---------- WIRING ----------
+function loadData(d){
+  DATA=d;side=null;player=null;persistShots=[];persistPasses=[];persistDuels=[];
+  $('homeNm').textContent=d.match.home;$('awayNm').textContent=d.match.away;
+  $('homeSc').textContent=d.match.homeScore;$('awaySc').textContent=d.match.awayScore;
+  document.querySelectorAll('.teamcard').forEach(c=>c.classList.remove('sel'));
+  $('playerSel').disabled=true;$('playerSel').innerHTML='<option>— elegí equipo —</option>';
+  $('playBtn').disabled=true;$('recBtn').disabled=true;
+  drawPitch();
+}
+function pickSide(s){
+  side=s;
+  document.querySelectorAll('.teamcard').forEach(c=>c.classList.toggle('sel',c.dataset.side===s));
+  const list=DATA.players[s]||[];
+  const sel=$('playerSel');sel.disabled=false;
+  sel.innerHTML='<option value="">— elegí jugador —</option>'+
+    list.map((p,i)=>`<option value="${i}">#${p.number} ${p.name} · ${p.position}</option>`).join('');
+  player=null;$('playBtn').disabled=true;$('recBtn').disabled=true;
+}
+function pickPlayer(i){
+  player=DATA.players[side][i];
+  $('playBtn').disabled=false;$('recBtn').disabled=false;
+  drawPitch();
+}
+
+$('loadBtn').onclick=()=>{
+  const u=$('matchUrl').value.trim();
+  if(!u){alert('Pegá el link del partido de SofaScore.');return}
+  // Browser can't scrape SofaScore (CORS/Cloudflare). Explain + load demo structure.
+  alert('El scraping de SofaScore corre en tu notebook de Python (CORS/Cloudflare bloquean el navegador).\n\nExportá el JSON desde el notebook y subilo con "subir JSON del notebook".\n\nPor ahora cargo la estructura demo para que pruebes la animación.');
+  loadData(DEMO);
+};
+$('uploadLink').onclick=e=>{e.preventDefault();$('fileInput').click()};
+$('fileInput').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{loadData(JSON.parse(r.result))}catch(err){alert('JSON inválido: '+err.message)}};
+  r.readAsText(f);
+};
+$('demoLink').onclick=e=>{e.preventDefault();loadData(DEMO)};
+
+document.querySelectorAll('.teamcard').forEach(c=>c.onclick=()=>{if(DATA)pickSide(c.dataset.side)});
+$('playerSel').onchange=e=>{if(e.target.value!=='')pickPlayer(+e.target.value)};
+
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  const k=c.dataset.fx;fx[k]=!fx[k];c.classList.toggle('on',fx[k]);
+});
+$('speed').oninput=e=>{speed=+e.target.value;$('speedV').textContent=speed+'×'};
+
+$('playBtn').onclick=async()=>{if(!player)return;await runStory()};
+$('replayBtn').onclick=async()=>{if(player)await runStory()};
+$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔇 Voz':'🔊 Voz';if(muted)speechSynthesis.cancel()};
+
+$('recBtn').onclick=async()=>{
+  if(!player)return;
+  if(!recording){
+    recording=true;$('recBtn').innerHTML='<span class="rec-dot"></span>Detener';
+    startRec();await runStory();stopRec();
+    recording=false;$('recBtn').innerHTML='● Grabar .mp4';
+  }else{stopRec();recording=false;$('recBtn').innerHTML='● Grabar .mp4'}
+};
+$('dlBtn').onclick=()=>{
+  if(!recordedURL)return;
+  const a=document.createElement('a');a.href=recordedURL;
+  a.download=`reel_${(player?.name||'jugador').replace(/\s+/g,'_')}.${$('dlBtn').dataset.ext||'webm'}`;
+  a.click();
+};
+
+// init
+drawPitch();
+loadData(DEMO);
+</script>
+</body>
+</html>
