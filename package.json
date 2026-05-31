@@ -1,0 +1,25 @@
+{
+  "name": "pitch-stories-reel",
+  "version": "1.0.0",
+  "description": "Reels de futbol estilo storytelling — shotmap animado desde datos de SofaScore",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Reel out/reel.mp4",
+    "render:player": "remotion render Reel out/reel.mp4 --props=./public/match.json",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.469",
+    "@remotion/google-fonts": "^4.0.469",
+    "@remotion/media-utils": "^4.0.469",
+    "@remotion/shapes": "^4.0.469",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "^4.0.469",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.0",
+    "typescript": "5.5.4"
+  }
+}

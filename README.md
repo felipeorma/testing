@@ -1,38 +1,92 @@
-# ⚽ Pitch Stories
+# ⚽ Pitch Stories — Reel (Remotion)
 
-Plataforma web para crear **reels de Instagram** tipo *storytelling* de un futbolista, a partir de datos de **SofaScore**: shotmap animado, pases, duelos, narración por voz IA en español y sonido de gol. Salida en formato vertical 9:16 grabable a video.
+Reels de fútbol estilo *storytelling* con **shotmap animado fluido**, a partir de datos de **SofaScore**. Cancha vertical opta + paleta CYBER (idénticas a tu notebook), animación con `spring()` y easing, "¡GOOOL!" con sonido. Salida `.mp4` 1080×1920, 30 s.
 
-## Cómo funciona (flujo)
+## Flujo
 
 ```
-SofaScore  →  notebook Python (scraping)  →  match.json  →  esta web (anima + narra + graba)
+Tu notebook (scraping)  →  match.json  →  Remotion (React anima)  →  out/reel.mp4
 ```
 
-El navegador **no puede** scrapear SofaScore directamente (CORS + Cloudflare). Por eso el scraping vive en tu notebook y la web solo consume el JSON.
+## Requisitos (una vez)
 
-## Uso
+- **Node.js 18+** → https://nodejs.org (instalá la versión LTS)
+- En la primera ejecución, Remotion descarga Chrome Headless solo (necesita internet).
 
-1. En tu `sofascore_final.ipynb`, pegá la celda de `export_cell.py`, poné el link del partido y corréla → genera `match.json`.
-2. Abrí la web → **subir JSON del notebook** → elegí **equipo** (local/visita) → elegí **jugador**.
-3. **▶ Generar reel** para previsualizar. **● Grabar** para exportar el video, **↓ Descargar**.
-4. Activá/desactivá capas (shotmap, pases, duelos, voz, gol) y ajustá el ritmo.
-
-## Deploy en GitHub Pages
+## Instalación
 
 ```bash
-git init
-git add index.html export_cell.py README.md
-git commit -m "Pitch Stories"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/pitch-stories.git
-git push -u origin main
+cd remotion-reel
+npm install
 ```
 
-Luego en GitHub: **Settings → Pages → Source: Deploy from a branch → main / root → Save**.
-Queda en `https://TU_USUARIO.github.io/pitch-stories/`.
+## Generar un reel
+
+**1. Exportá el JSON desde tu notebook.** Pegá `notebook_export_cell.py` como última celda de `sofascore_final.ipynb`, corré todo en orden y ejecutá:
+
+```python
+exportar_para_remotion(
+    MATCH_URL,
+    "Visita",                 # "Local" o "Visita"
+    "Javier Correa",          # jugador exacto SofaScore
+    metricas=["remates","xg","duelos","rating"]   # qué narrar en 30 s
+)
+```
+
+Genera `match.json`. Copialo a `remotion-reel/public/match.json`.
+
+**2. Previsualizá (estudio interactivo, recomendado):**
+
+```bash
+npm run dev
+```
+
+Abre Remotion Studio en el navegador. Ahí ves la animación en vivo, podés editar `match.json` y los props en tiempo real.
+
+**3. Renderizá el mp4:**
+
+```bash
+npm run render:player
+```
+
+Sale en `out/reel.mp4`, listo para Instagram.
+
+## Cómo elegís equipo / jugador / métricas
+
+Todo vive en `match.json` (lo genera el notebook). El campo `metrics` controla qué se muestra/narra:
+
+| valor | muestra |
+|---|---|
+| `remates` | goles + total de remates |
+| `xg` | suma de goles esperados |
+| `pases` | pases clave |
+| `duelos` | duelos/defensivo ganados |
+| `rating` | rating gigante en el cierre |
+
+## Estructura del reel (30 s)
+
+| Tramo | Tiempo | Contenido |
+|---|---|---|
+| Intro | 0–4 s | Nombre, dorsal, posición, marcador |
+| Shotmap | 4–20 s | Cada remate con trayectoria + balón + gol |
+| Métricas | 20.5–27 s | Las que elegiste, con números que cuentan |
+| Cierre | 27–30 s | Rating SofaScore en grande |
+
+## Archivos
+
+- `src/data.ts` — schema del JSON + paleta + geometría opta (replica tu `to_100`, `_depth`, `_width`)
+- `src/Pitch.tsx` — cancha vertical media (opta)
+- `src/ShotMap.tsx` — animación de remates (spring + easing + trail + gol)
+- `src/Overlays.tsx` — "¡GOOOL!" + contadores
+- `src/Reel.tsx` — composición y timing de 30 s
+- `src/Root.tsx` — registro + datos demo
+- `public/gol.mp3` — sonido de gol
+- `public/match.json` — tus datos (lo reemplazás)
+- `notebook_export_cell.py` — celda para tu notebook
 
 ## Notas
 
-- **Voz**: usa la Web Speech API del navegador (español). Funciona mejor en Chrome/Edge.
-- **Grabación**: `MediaRecorder` exporta `.mp4` donde el navegador lo soporta, si no `.webm` (convertible con HandBrake/ffmpeg).
-- El formato del JSON está documentado en `export_cell.py`. Los campos `passes`/`duels` quedan listos para llenar desde `get_player_match_events`.
+- Si querés cambiar duración: `durationInFrames` en `src/Root.tsx` (frames = segundos × 30).
+- Para mover la cancha: `PITCH_BOX` en `src/Reel.tsx`.
+- Voz: la dejamos fuera por ahora. Cuando quieras, se agrega un `<Audio>` con el mp3 de gTTS/ElevenLabs sincronizado por escena.
+- `preview_shotmap.png` es solo una muestra estática de la geometría; el render real es animado y con mejor tipografía.
